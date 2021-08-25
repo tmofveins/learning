@@ -23,7 +23,7 @@ Given a fixed-length integer array  `arr`, duplicate each occurrence of zero, sh
 
 <hr> 
 
-### Intuition
+### Explanation
 
 **O(n^2) time naive solution**
 
@@ -37,7 +37,14 @@ An important thing to note is that **elements beyond the original length of the 
 
 <hr>
 
-**Java solution**
+### Why I highlighted this problem
+
+- Reminded me to pay closer attention to problem constraints (in this case, the detail that elements beyond the original length of the array are not written)
+- Interesting usage of the two-pointer technique as the length of the original array has to be accounted for
+
+<hr>
+
+### Java solution
 
 ```java
     public void duplicateZeros(int[] arr) {
@@ -69,6 +76,3 @@ An important thing to note is that **elements beyond the original length of the 
         }
     }
  ```
-<!--stackedit_data:
-eyJoaXN0b3J5IjpbMTkxMzI3OTkwXX0=
--->
