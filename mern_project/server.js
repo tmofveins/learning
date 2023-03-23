@@ -31,6 +31,8 @@ app.use("/", require("./routes/root"));
 
 app.use("/users", require("./routes/userRoutes"));
 
+app.use("/notes", require("./routes/noteRoutes"));
+
 // 404 page handling for invalid routes
 app.all("*", (req, res) => {
     res.status(404);
