@@ -16,21 +16,26 @@ const getAllNotes = asyncHandler(async(req, res) => {
         return res.status(400).json({ message: "No notes found" });
     }
 
-    res.json(notes);
+    const notesWithUser = await Promise.all(notes.map(async (note) => {
+        const user = await User.findById(note.user).lean().exec();
+        return { ...note, username: user.username };
+    }));
+
+    res.json(notesWithUser);
 });
 
 // @desc create new note
 // @route POST /notes
 // @access private
 const createNewNote = asyncHandler(async(req, res) => {
-    const { userId, title, text } = req.body;
+    const { user, title, text } = req.body;
 
     // confirming data exists
-    if (!userId || !title || !text ) {
+    if (!user || !title || !text ) {
         return res.status(400).json({ message: "All fields are required to create a note" });
     }
 
-    // check for duplicate username
+    // check for duplicate note name
     // exec ensures the statement is executed as a Promise (hence the await)
     const duplicate = await Note.findOne({ title }).lean().exec();
     if (duplicate) {
@@ -38,7 +43,7 @@ const createNewNote = asyncHandler(async(req, res) => {
         return res.status(409).json({ message: "Duplicate note title" });
     }
 
-    const note = await Note.create({ userId, title, text });
+    const note = await Note.create({ user, title, text });
 
     if (note) {
         // 201 = created, usually sent after POST/PUT requests

@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const noteSchema = new mongoose.Schema({
     // references back to user db table
-    userId: {
+    user: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
         ref: "User",
