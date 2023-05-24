@@ -12,7 +12,6 @@ export const notesApiSlice = apiSlice.injectEndpoints({
             validateStatus: (response, result) => {
                 return response.status === 200 && !result.isError;
             },
-            keepUnusedDataFor: 5,
             transformResponse: responseData => {
                 // maps the _id field to id instead so it aligns with mongo model
                 const loadedNotes = responseData.map(note => {
@@ -33,10 +32,51 @@ export const notesApiSlice = apiSlice.injectEndpoints({
                 }
             },
         }),
+        addNewNote: builder.mutation({
+            query: initialNoteData => ({
+                url: "/notes",
+                method: "POST",
+                body: {
+                    ...initialNoteData,
+                }
+            }),
+            // force the cache to update, we invalidate the user list
+            invalidatesTags: [
+                { type: "Note", id: "LIST" }
+            ],
+        }),
+        updateNote: builder.mutation({
+            query: initialNoteData => ({
+                url: "/notes",
+                method: "PATCH",
+                body: {
+                    ...initialNoteData,
+                }
+            }),
+            // only invalidate a specific user
+            invalidatesTags: (result, error, arg) => [
+                { type: "Note", id: arg.id }
+            ],
+        }),
+        deleteNote: builder.mutation({
+            query: ({ id }) => ({
+                url: `/notes`,
+                method: "DELETE",
+                body: { id } 
+            }),
+            invalidatesTags: (result, error, arg) => [
+                { type: "Note", id: arg.id }
+            ],
+        }),
     }),
 });
 
-export const { useGetNotesQuery } = notesApiSlice;
+export const { 
+    useGetNotesQuery,
+    useAddNewNoteMutation,
+    useUpdateNoteMutation,
+    useDeleteNoteMutation,
+} = notesApiSlice;
 
 // returns result of the getnotes query (part of the global state)
 export const selectNotesResult = notesApiSlice.endpoints.getNotes.select();

@@ -12,7 +12,6 @@ export const usersApiSlice = apiSlice.injectEndpoints({
             validateStatus: (response, result) => {
                 return response.status === 200 && !result.isError;
             },
-            keepUnusedDataFor: 5,
             transformResponse: responseData => {
                 // maps the _id field to id instead so it aligns with mongo model
                 const loadedUsers = responseData.map(user => {
@@ -33,10 +32,51 @@ export const usersApiSlice = apiSlice.injectEndpoints({
                 }
             },
         }),
+        addNewUser: builder.mutation({
+            query: initialUserData => ({
+                url: "/users",
+                method: "POST",
+                body: {
+                    ...initialUserData,
+                }
+            }),
+            // force the cache to update, we invalidate the user list
+            invalidatesTags: [
+                { type: "User", id: "LIST" }
+            ],
+        }),
+        updateUser: builder.mutation({
+            query: initialUserData => ({
+                url: "/users",
+                method: "PATCH",
+                body: {
+                    ...initialUserData,
+                }
+            }),
+            // only invalidate a specific user
+            invalidatesTags: (result, error, arg) => [
+                { type: "User", id: arg.id }
+            ],
+        }),
+        deleteUser: builder.mutation({
+            query: ({ id }) => ({
+                url: `/users`,
+                method: "DELETE",
+                body: { id } 
+            }),
+            invalidatesTags: (result, error, arg) => [
+                { type: "User", id: arg.id }
+            ],
+        }),
     }),
 });
 
-export const { useGetUsersQuery } = usersApiSlice;
+export const { 
+    useGetUsersQuery,
+    useAddNewUserMutation,
+    useUpdateUserMutation,
+    useDeleteUserMutation,
+ } = usersApiSlice;
 
 // returns result of the getusers query (part of the global state)
 export const selectUsersResult = usersApiSlice.endpoints.getUsers.select();
