@@ -11,10 +11,12 @@ const login = asyncHandler(async(req, res) => {
     }
 
     const foundUser = await User.findOne({ username }).exec();
+    // no user with this username, or user set to inactive
     if (!foundUser || !foundUser.active) {
         return res.status(401).json({ message: "Unauthorised" });
     }
 
+    // password mismatch
     const match = await bcrypt.compare(password, foundUser.password);
     if (!match) {
         return res.status(401).json({ message: "Unauthorised"});
@@ -34,7 +36,7 @@ const login = asyncHandler(async(req, res) => {
     const refreshToken = jwt.sign(
         { "username": foundUser.username },
         process.env.REFRESH_TOKEN_SECRET,
-        { expiresIn: "1d" },
+        { expiresIn: "7d" },
     );
 
     res.cookie("jwt", refreshToken, {
